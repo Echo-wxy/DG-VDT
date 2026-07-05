@@ -16,36 +16,44 @@ The framework is scoped to three structurally distinct vulnerability categories:
 
 ## Dataset Information
 
-### Author-constructed datasets (released with this repository)
+All datasets used in this study are released or referenced with an explicit **DOI or persistent URL** and are distributed in **human- and machine-readable formats** (JSON / JSONL / CSV / `.sol` source files), so that reviewers, replicators, and downstream researchers can access every data source directly from the tables below.
 
-All datasets below are deposited on Zenodo (DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)) and released under CC BY 4.0.
+### 1. Author-constructed datasets (released with this repository)
 
-| Dataset | Size | Description |
-|---|---|---|
-| **BlockTrace-500k** | 500,000 traces | Ethereum mainnet execution traces (blocks 15,000,000–19,500,000, July 2022–March 2024), used for GRPO training |
-| **EthVulBench** | 4,500 transactions | Curated evaluation set across three vulnerability categories (reentrancy 1,800; short-address 1,350; timestamp-dependence 1,350) |
-| **Etherscan-Public-1k** | 1,024 contracts | Independent validation set from Etherscan verified-contracts registry (Feb 2024 snapshot) |
-| **ToolGen-Block** | 2,500 instances | Blockchain-specific function-calling benchmark following the BFCL annotation schema |
-| **ScamTrace-2024** | 1,200 traces | Real-world attack traces with ground-truth exploiter addresses (DeFiHackLabs source) |
-| **CrossChainAtt** | 600 scenarios | Cross-chain bridge attack scenarios (Ronin, Nomad, Wormhole) |
+All six author-constructed datasets are deposited on Zenodo under a single record — **DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)** — and released under CC BY 4.0.
 
-### Third-party datasets (used for zero-shot evaluation, NOT redistributed)
+| Dataset | Size | Description | DOI / URL | Format | License |
+|---|---|---|---|---|---|
+| **BlockTrace-500k** | 500,000 traces | Ethereum mainnet execution traces (blocks 15,000,000–19,500,000, July 2022 – March 2024); used for GRPO training | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSONL | CC BY 4.0 |
+| **EthVulBench** | 4,500 transactions | Curated evaluation set across three vulnerability categories (reentrancy 1,800; short-address 1,350; timestamp-dependence 1,350) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSON + CSV | CC BY 4.0 |
+| **Etherscan-Public-1k** | 1,024 contracts | Independent validation set from the Etherscan verified-contracts registry (Feb 2024 snapshot) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | `.sol` + JSON | CC BY 4.0 |
+| **ToolGen-Block** | 2,500 instances | Blockchain-specific function-calling benchmark following the BFCL annotation schema | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSONL | CC BY 4.0 |
+| **ScamTrace-2024** | 1,200 traces | Real-world attack traces with ground-truth exploiter addresses (sourced from DeFiHackLabs) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSONL | CC BY 4.0 |
+| **CrossChainAtt** | 600 scenarios | Cross-chain bridge attack scenarios (Ronin, Nomad, Wormhole) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSON | CC BY 4.0 |
 
-| Dataset | Source |
-|---|---|
-| SolidiFI-Bench | https://github.com/DependableSystemsLab/SolidiFI-benchmark |
-| SmartBugs Curated | https://github.com/smartbugs/smartbugs-curated |
-| SmartBugs Wild | https://github.com/smartbugs/smartbugs-wild |
+### 2. Third-party datasets (used for zero-shot evaluation, NOT redistributed)
 
-### Additional public data sources referenced in the study
+All third-party datasets are accessed through their **original public repositories**; only the persistent source URLs are given here so that reviewers can obtain the exact versions used in this study. No third-party data is redistributed with this repository.
 
-- BFCL annotation schema: https://gorilla.cs.berkeley.edu/leaderboard.html
-- Etherscan API: https://docs.etherscan.io/
-- SWC Registry: https://swcregistry.io/
-- DeFiHackLabs: https://github.com/SunWeb3Sec/DeFiHackLabs
-- Ronin post-mortem: https://roninchain.com/blog/posts/back-to-building-ronin-security-breach-6513cc78a5edc1001b03c364
-- Nomad analysis: https://medium.com/immunefi/hack-analysis-nomad-bridge-august-2022-5aa63d53814a
-- Wormhole analysis: https://www.halborn.com/blog/post/explained-the-wormhole-hack-february-2022
+| Dataset | Description | DOI / URL (main text) | Format | Original license |
+|---|---|---|---|---|
+| **SolidiFI-Bench** | Injected-bug Solidity benchmark for detector evaluation | <https://github.com/DependableSystemsLab/SolidiFI-benchmark> | `.sol` + JSON (bug reports) | MIT |
+| **SmartBugs Curated** | 143 hand-curated vulnerable Solidity contracts across 10 DASP categories | <https://github.com/smartbugs/smartbugs-curated> | `.sol` + YAML metadata | MIT |
+| **SmartBugs Wild** | ~47k real-world Solidity contracts scraped from Etherscan | <https://github.com/smartbugs/smartbugs-wild> | `.sol` | MIT |
+
+### 3. Additional public data sources referenced in the study
+
+The following resources are cited in the manuscript as **reference specifications, APIs, or evidence sources**. They are not used as training or evaluation data; the URLs are provided here for full traceability.
+
+| Resource | Role in the study | URL | Format |
+|---|---|---|---|
+| BFCL annotation schema | Reference schema for the `ToolGen-Block` annotation format | <https://gorilla.cs.berkeley.edu/leaderboard.html> | HTML / JSON |
+| Etherscan API | Source for verified contract source code and transaction traces | <https://docs.etherscan.io/> | JSON (REST API) |
+| SWC Registry | Canonical taxonomy of smart-contract weaknesses used to align vulnerability labels | <https://swcregistry.io/> | HTML / Markdown |
+| DeFiHackLabs | Reproduced real-world exploits used as ground truth for `ScamTrace-2024` | <https://github.com/SunWeb3Sec/DeFiHackLabs> | `.sol` + Markdown |
+| Ronin post-mortem | Attack narrative used to construct one `CrossChainAtt` scenario | <https://roninchain.com/blog/posts/back-to-building-ronin-security-breach-6513cc78a5edc1001b03c364> | HTML |
+| Nomad analysis | Attack narrative used to construct one `CrossChainAtt` scenario | <https://medium.com/immunefi/hack-analysis-nomad-bridge-august-2022-5aa63d53814a> | HTML |
+| Wormhole analysis | Attack narrative used to construct one `CrossChainAtt` scenario | <https://www.halborn.com/blog/post/explained-the-wormhole-hack-february-2022> | HTML |
 
 ---
 
@@ -73,6 +81,7 @@ Evaluation scripts and reproducibility artefacts (McNemar / Holm–Bonferroni si
 - datasets, accelerate
 
 **Hardware used in the paper**
+
 - Training: 4×A100-80GB (DG-VDT-7B, ~48 GPU-hours); 8×A100-80GB (DG-VDT-32B, ~180 GPU-hours)
 - Inference: single NVIDIA RTX 3090 (24 GB VRAM)
 
