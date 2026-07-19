@@ -49,6 +49,14 @@ EDGE_TYPE_TO_IDX = {t: i for i, t in enumerate(EDGE_TYPES)}
 # policy must emit inside <vulnerability>...</vulnerability>.
 VULN_TYPES: list[str] = ["reentrancy", "short_address", "timestamp"]
 
+# Benign verdict: emitted as <vulnerability>none</vulnerability> with NO
+# <trace> tag (there is no attacker to report). This mirrors the evaluation
+# prompt in the paper's appendix, where models may answer "None" and omit
+# the trace tag. Kept separate from VULN_TYPES because no reference
+# signature G* exists for the benign class.
+BENIGN_TYPE: str = "none"
+OUTPUT_TYPES: list[str] = VULN_TYPES + [BENIGN_TYPE]
+
 
 @dataclass
 class Node:

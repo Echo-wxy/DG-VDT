@@ -25,7 +25,7 @@ class RGCNEncoder(nn.Module):
     def __init__(
         self,
         in_dim: int = len(NODE_TYPES),
-        hidden_dim: int = 128,
+        hidden_dim: int = 256,      # paper: two RGCN layers, hidden dim 256
         out_dim: int = 256,
         num_relations: int = len(EDGE_TYPES),
         num_bases: int | None = None,

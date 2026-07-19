@@ -2,7 +2,9 @@
 
 **Graph-Conditioned Reinforcement Learning for Ethereum Smart-Contract Vulnerability Detection and Traceability**
 
-This repository contains the code, data references, and pre-trained model weights for the DG-VDT framework — a reinforcement-learning approach for low-latency vulnerability detection and attacker traceability in Ethereum smart contracts. It accompanies the manuscript submitted to *PeerJ Computer Science*.
+This repository contains the **reference implementation of the DG-VDT reward engine** — the graph schema, the RGCN graph encoder Φ, the canonical reference attack signatures $G^*$, and the complete dual-stage reward computation — together with a self-contained unit-test suite. It accompanies the manuscript submitted to *PeerJ Computer Science*.
+
+The **datasets, pre-trained model weights, full GRPO training pipeline, and evaluation scripts** are deposited on Zenodo (**DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)**); see [Dataset Information](#dataset-information) below.
 
 ---
 
@@ -59,26 +61,43 @@ The following resources are cited in the manuscript as **reference specification
 
 ## Code Information
 
-The repository is organized around the four functional components of DG-VDT:
+This repository is the **reward-engine reference implementation**. Layout:
 
-- **Graph extraction** — parsing EVM traces into FFG / CCG / CaG graphs and producing per-window unified snapshots.
-- **RGCN graph encoder $\Phi$** — heterogeneous relational graph convolutional encoder (2 layers, hidden dim 256, three relation types: ETH-transfer, function-call, contract-create), pre-trained with a contrastive objective on a held-out 10% split of BlockTrace-500k.
-- **VF2 subgraph-isomorphism matcher** — Stage-2 exact signature verification against the reference graphs $G^*$ of each vulnerability category.
-- **GRPO training loop** — pure-RL policy optimization with group size $N=8$, dual-stage progressive reward, sigmoid curriculum ($k=0.3$, $m=8\mathrm{k}$ steps), and PPO-style clipping ($\varepsilon=0.2$).
+```
+dgvdt/
+├── schema.py       # trace-graph data structure: node/edge taxonomy, the three
+│                   #   graph views (FFG / CCG / CaG), PyG & networkx converters
+├── encoder.py      # RGCN graph encoder Φ (2 layers, hidden dim 256, five edge
+│                   #   relation types: ETH / CALL / CREATE / SLOAD / SSTORE)
+│                   #   + the InfoNCE graph-contrastive pre-training loss
+├── references.py   # canonical reference signatures G* (RE 7n/8e, SA 5n/5e,
+│                   #   TD 6n/7e) + the median-size G* construction procedure
+└── reward.py       # the complete reward: format gate (incl. the benign "none"
+                    #   verdict), Stage-1 cosine reward (Eq. 2), Stage-2 VF2
+                    #   verification, sigmoid curriculum (k=0.3, m=8k steps),
+                    #   multi-graph collaboration bonus (anomaly co-occurrence
+                    #   detectors per view), parameter penalty, and composition
+dgvdt_tests.py      # deterministic unit tests for every reward component
+requirements.txt    # minimal dependencies for this package
+```
 
-Evaluation scripts and reproducibility artefacts (McNemar / Holm–Bonferroni significance tests, seed control) are also included in the Zenodo release.
+The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.2$), the **EVM graph-extraction pipeline**, the **evaluation scripts**, and the reproducibility artefacts (McNemar / Holm–Bonferroni significance tests, seed control) are included in the Zenodo release (DOI above), alongside the datasets and pre-trained weights.
 
 ---
 
 ## Requirements
 
+**This repository** (reward engine; matches `requirements.txt`):
+
 - Python 3.10+
-- PyTorch 2.1+ with CUDA 12.1
-- transformers 4.40+
-- torch-geometric 2.5+ (for the RGCN encoder)
-- networkx 3.2 (for VF2 subgraph isomorphism)
-- statsmodels 0.14 (for McNemar / Holm–Bonferroni tests)
-- datasets, accelerate
+- torch >= 2.0 (CPU is sufficient for the reward engine and tests)
+- torch_geometric >= 2.4 (RGCN encoder)
+- networkx >= 3.0 (VF2 subgraph isomorphism)
+- pytest (optional, for running the test suite via pytest)
+
+**Full training / evaluation pipeline** (Zenodo release): additionally
+transformers 4.40+, statsmodels 0.14 (McNemar / Holm–Bonferroni tests),
+datasets, accelerate, and PyTorch with CUDA 12.1.
 
 **Hardware used in the paper**
 
@@ -89,24 +108,41 @@ Evaluation scripts and reproducibility artefacts (McNemar / Holm–Bonferroni si
 
 ## Usage Instructions
 
+**1. Install and verify** (this repository):
+
 ```bash
-# 1. Download the Zenodo release and place the datasets under data/
-#    DOI: https://doi.org/10.5281/zenodo.20848392
-
-# 2. Install dependencies
 pip install -r requirements.txt
-
-# 3. Pre-train the RGCN graph encoder Phi
-python rgcn/pretrain.py --config configs/rgcn.yaml
-
-# 4. GRPO training (DG-VDT-7B)
-python grpo/train.py --config configs/dgvdt_7b.yaml
-
-# 5. Evaluate on all six benchmarks
-bash eval/run_all.sh
+python dgvdt_tests.py            # or: python -m pytest dgvdt_tests.py -q
 ```
 
-Reference-graph specifications $G^*$ for the three vulnerability categories (node/edge counts, adjacency lists, node-feature vectors) are included in the Zenodo deposit.
+All tests are deterministic and run on CPU in seconds.
+
+**2. Use the reward engine** — score a model output against an observed trace graph:
+
+```python
+from dgvdt import (TraceGraph, Node, Edge, RGCNEncoder,
+                   canonical_references, compute_reward, RewardConfig)
+
+# build (or parse) an observed snapshot G_obs = {FFG, CCG, CaG}
+g_obs = TraceGraph(
+    nodes=[Node("0xAttacker", "EOA"), Node("0xVictim", "Contract")],
+    edges=[Edge("0xAttacker", "0xVictim", "ETH", attrs={"amount": 1.0})],
+)
+
+encoder = RGCNEncoder()                  # load pre-trained Φ weights in practice
+refs = canonical_references()            # the three signatures G*
+out = "<vulnerability>reentrancy</vulnerability> <trace>0x" + "ab" * 20 + "</trace>"
+
+rb = compute_reward(out, g_obs, step=20000, encoder=encoder, references=refs,
+                    cfg=RewardConfig())  # paper defaults: k=0.3, m=8k steps
+print(rb)                                # full reward breakdown
+```
+
+A benign verdict is `"<vulnerability>none</vulnerability>"` with **no** `<trace>` tag; it receives the format reward only (no reference signature exists for the benign class).
+
+**3. Reproduce the paper's training and evaluation** — download the Zenodo release (DOI: <https://doi.org/10.5281/zenodo.20848392>), which contains the datasets, the pre-trained Φ and policy weights, the GRPO training pipeline, and the evaluation scripts for all six benchmarks, each with its own run instructions.
+
+Reference-graph specifications $G^*$ for the three vulnerability categories (node/edge counts, adjacency lists, node-feature vectors) are defined in code in `dgvdt/references.py` and, in serialized form, in the Zenodo deposit.
 
 ---
 
@@ -174,7 +210,7 @@ where $R_\text{format} \in \{0,1\}$ is a **prerequisite gate** that checks wheth
 
 Early training is governed by an **embedding-similarity reward** designed to encourage broad coverage of the graph-topology space rather than premature specialization. The observed snapshot $G_\text{obs}$ and the reference graph $G^*$ are both projected into $\mathbb{R}^{256}$ by a heterogeneous graph encoder $\Phi$, and their cosine similarity is taken:
 
-$$r_\text{general} = -0.5 + \frac{\mathbf{z}_\text{obs} \cdot \mathbf{z}^*}{\lVert \mathbf{z}_\text{obs}\rVert\, \lVert \mathbf{z}^*\rVert}$$
+$$r_\text{general} = \max\!\left(0,\ \frac{\mathbf{z}_\text{obs} \cdot \mathbf{z}^*}{\lVert \mathbf{z}_\text{obs}\rVert\, \lVert \mathbf{z}^*\rVert}\right) - 0.5 \ \in\ [-0.5,\ +0.5]$$
 
 Partial reward for topological proximity drives the policy to explore structural variants (e.g., incomplete reentrancy cycles), deferring strict precision to Stage 2.
 
@@ -198,7 +234,7 @@ with $k$ controlling transition steepness and $m$ the midpoint step. Unlike a st
 
 #### 5.4 Two Auxiliary Terms
 
-- **Multi-graph collaboration bonus** $R_\text{collab} = +0.3$: awarded when corroborating anomalies are detected *simultaneously* across multiple graph views (e.g., a fund cycle in the FFG co-occurring with a circular call sequence in the CaG).
+- **Multi-graph collaboration bonus** $R_\text{collab} = +0.3$: awarded when corroborating **anomalies** are detected *simultaneously* across ≥ 2 graph views. The implementation runs a discriminative anomaly detector per view — FFG: a directed Ether cycle, or value attached in parallel to a truncated-ABI call; CaG: a re-entry `CALL` antiparallel to an Ether flow, a call with ABI argument length < 32 bytes, or an opcode-gated branch (`TIMESTAMP`-style causal chain); CCG: a miner-account deploy edge or a deploy hub — and pays the bonus only when at least two views fire (e.g., FFG fund cycle + CaG re-entry edge for reentrancy; CaG opcode gate + CCG miner hub for timestamp-dependence). Merely sharing edge views with the signature is not sufficient.
 - **Parameter error penalty** $R_\text{param} = -0.3$ (per misaligned numeric field): incentivizes the policy to attend to fine-grained numerical context beyond what topological matching captures.
 
 ### 6. Heterogeneous Graph Encoder $\Phi$
@@ -231,8 +267,9 @@ The policy must emit markup conforming to the following schema:
 <trace>ADDRESS</trace>
 ```
 
-- `TYPE` in { `reentrancy`, `short_address`, `timestamp` }
+- `TYPE` in { `reentrancy`, `short_address`, `timestamp`, `none` }
 - `ADDRESS` is a `0x`-prefixed 40-hex-digit address (the attacker-traceability result)
+- For a **benign verdict** (`none`) the `<trace>` tag must be **omitted** — there is no attacker to report; the sample then receives the format reward only, since no reference signature $G^*$ exists for the benign class
 
 The predicted vulnerability type selects which reference signature $G^*$ the sample is scored against — this is the mechanism that anchors the textual prediction in graph structure.
 
