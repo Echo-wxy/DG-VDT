@@ -4,7 +4,7 @@
 
 This repository contains the **reference implementation of the DG-VDT reward engine** — the graph schema, the RGCN graph encoder Φ, the canonical reference attack signatures $G^*$, and the complete dual-stage reward computation — together with a self-contained unit-test suite. It accompanies the manuscript submitted to *PeerJ Computer Science*.
 
-The **datasets, pre-trained model weights, full GRPO training pipeline, and evaluation scripts** are deposited on Zenodo (**DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)**); see [Dataset Information](#dataset-information) below.
+This code repository is archived on Zenodo (**DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)**). The **author-constructed datasets, pre-trained model weights, and full GRPO training / evaluation pipeline are not yet publicly deposited**: they are available to the journal's editors and reviewers upon request during the evaluation period, and will be released publicly under CC BY 4.0 upon acceptance of the manuscript; see [Dataset Information](#dataset-information) below.
 
 ---
 
@@ -22,16 +22,16 @@ All datasets used in this study are released or referenced with an explicit **DO
 
 ### 1. Author-constructed datasets (released with this repository)
 
-All six author-constructed datasets are deposited on Zenodo under a single record — **DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)** — and released under CC BY 4.0.
+The six author-constructed datasets below are **not yet publicly deposited**. They are available to the journal's editors and reviewers upon request during the evaluation period, and will be released under CC BY 4.0 upon acceptance. (Zenodo DOI [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) archives this **code repository**, not the datasets.)
 
 | Dataset | Size | Description | DOI / URL | Format | License |
 |---|---|---|---|---|---|
-| **BlockTrace-500k** | 500,000 traces | Ethereum mainnet execution traces (blocks 15,000,000–19,500,000, July 2022 – March 2024); used for GRPO training | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSONL | CC BY 4.0 |
-| **EthVulBench** | 4,500 transactions | Curated evaluation set across three vulnerability categories (reentrancy 1,800; short-address 1,350; timestamp-dependence 1,350) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSON + CSV | CC BY 4.0 |
-| **Etherscan-Public-1k** | 1,024 contracts | Independent validation set from the Etherscan verified-contracts registry (Feb 2024 snapshot) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | `.sol` + JSON | CC BY 4.0 |
-| **ToolGen-Block** | 2,500 instances | Blockchain-specific function-calling benchmark following the BFCL annotation schema | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSONL | CC BY 4.0 |
-| **ScamTrace-2024** | 1,200 traces | Real-world attack traces with ground-truth exploiter addresses (sourced from DeFiHackLabs) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSONL | CC BY 4.0 |
-| **CrossChainAtt** | 600 scenarios | Cross-chain bridge attack scenarios (Ronin, Nomad, Wormhole) | [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392) | JSON | CC BY 4.0 |
+| **BlockTrace-500k** | 500,000 traces | Ethereum mainnet execution traces (blocks 15,000,000–19,500,000, July 2022 – March 2024); used for GRPO training | Upon acceptance (on request during review) | JSONL | CC BY 4.0 |
+| **EthVulBench** | 4,500 transactions | Curated evaluation set across three vulnerability categories (reentrancy 1,800; short-address 1,350; timestamp-dependence 1,350) | Upon acceptance (on request during review) | JSON + CSV | CC BY 4.0 |
+| **Etherscan-Public-1k** | 1,024 contracts | Independent validation set from the Etherscan verified-contracts registry (Feb 2024 snapshot) | Upon acceptance (on request during review) | `.sol` + JSON | CC BY 4.0 |
+| **ToolGen-Block** | 2,500 instances | Blockchain-specific function-calling benchmark following the BFCL annotation schema | Upon acceptance (on request during review) | JSONL | CC BY 4.0 |
+| **ScamTrace-2024** | 1,200 traces | Real-world attack traces with ground-truth exploiter addresses (sourced from DeFiHackLabs) | Upon acceptance (on request during review) | JSONL | CC BY 4.0 |
+| **CrossChainAtt** | 600 scenarios | Cross-chain bridge attack scenarios (Ronin, Nomad, Wormhole) | Upon acceptance (on request during review) | JSON | CC BY 4.0 |
 
 ### 2. Third-party datasets (used for zero-shot evaluation, NOT redistributed)
 
@@ -81,7 +81,7 @@ dgvdt_tests.py      # deterministic unit tests for every reward component
 requirements.txt    # minimal dependencies for this package
 ```
 
-The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.2$), the **EVM graph-extraction pipeline**, the **evaluation scripts**, and the reproducibility artefacts (McNemar / Holm–Bonferroni significance tests, seed control) are included in the Zenodo release (DOI above), alongside the datasets and pre-trained weights.
+The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.2$), the **EVM graph-extraction pipeline**, the **evaluation scripts**, and the reproducibility artefacts (McNemar / Holm–Bonferroni significance tests, seed control) belong to the full experimental pipeline, which is **not yet publicly released**: it is available to editors and reviewers upon request and will be released alongside the datasets and pre-trained weights upon acceptance.
 
 ---
 
@@ -95,7 +95,7 @@ The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.
 - networkx >= 3.0 (VF2 subgraph isomorphism)
 - pytest (optional, for running the test suite via pytest)
 
-**Full training / evaluation pipeline** (Zenodo release): additionally
+**Full training / evaluation pipeline** (released upon acceptance): additionally
 transformers 4.40+, statsmodels 0.14 (McNemar / Holm–Bonferroni tests),
 datasets, accelerate, and PyTorch with CUDA 12.1.
 
@@ -140,9 +140,9 @@ print(rb)                                # full reward breakdown
 
 A benign verdict is `"<vulnerability>none</vulnerability>"` with **no** `<trace>` tag; it receives the format reward only (no reference signature exists for the benign class).
 
-**3. Reproduce the paper's training and evaluation** — download the Zenodo release (DOI: <https://doi.org/10.5281/zenodo.20848392>), which contains the datasets, the pre-trained Φ and policy weights, the GRPO training pipeline, and the evaluation scripts for all six benchmarks, each with its own run instructions.
+**3. Reproduce the paper's training and evaluation** — the datasets, the pre-trained Φ and policy weights, the GRPO training pipeline, and the per-benchmark evaluation scripts are **not yet publicly released**; they are available to editors and reviewers upon request during the evaluation period and will be released publicly upon acceptance. (The Zenodo DOI <https://doi.org/10.5281/zenodo.20848392> archives this code repository.)
 
-Reference-graph specifications $G^*$ for the three vulnerability categories (node/edge counts, adjacency lists, node-feature vectors) are defined in code in `dgvdt/references.py` and, in serialized form, in the Zenodo deposit.
+Reference-graph specifications $G^*$ for the three vulnerability categories (node/edge counts, adjacency lists, node-feature vectors) are fully defined in code in `dgvdt/references.py`.
 
 ---
 
@@ -305,11 +305,11 @@ If you use DG-VDT, the datasets, or the code in this repository, please cite the
 }
 ```
 
-Please also cite the Zenodo deposit for the datasets and code:
+Please also cite the Zenodo archive of this code repository:
 
 ```bibtex
 @dataset{sun2026dgvdt_zenodo,
-  title     = {DG-VDT: Datasets, code, and pre-trained models for graph-conditioned RL vulnerability detection},
+  title     = {DG-VDT: Reference implementation of the reward engine for graph-conditioned RL vulnerability detection},
   author    = {Sun, Shiman and Jiang, Wenbao},
   year      = {2026},
   publisher = {Zenodo},
