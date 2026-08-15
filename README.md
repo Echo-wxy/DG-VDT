@@ -1,8 +1,8 @@
 # DG-VDT
 
-**Graph-Conditioned Reinforcement Learning for Ethereum Smart-Contract Vulnerability Detection and Traceability**
+**DG-VDT: Dynamic Graph-Guided Reinforcement Learning for Low-Latency Vulnerability Detection and Attack Traceability in Ethereum Smart Contracts**
 
-This repository contains the **reference implementation of the DG-VDT reward engine** — the graph schema, the RGCN graph encoder Φ, the canonical reference attack signatures $G^*$, and the complete dual-stage reward computation — together with a self-contained unit-test suite. It accompanies the manuscript submitted to *PeerJ Computer Science*.
+This repository contains the **reference implementation of the DG-VDT reward engine** — the graph schema, the RGCN graph encoder Φ, the canonical reference attack signatures $G^*$, and the complete dual-stage reward computation — together with a self-contained unit-test suite. It accompanies the manuscript currently under review at *Applied Sciences* (MDPI).
 
 This code repository is archived on Zenodo (**DOI: [10.5281/zenodo.20848392](https://doi.org/10.5281/zenodo.20848392)**). The **author-constructed datasets, pre-trained model weights, and full GRPO training / evaluation pipeline are not yet publicly deposited**: they are available to the journal's editors and reviewers upon request during the evaluation period, and will be released publicly under CC BY 4.0 upon acceptance of the manuscript; see [Dataset Information](#dataset-information) below.
 
@@ -81,7 +81,7 @@ dgvdt_tests.py      # deterministic unit tests for every reward component
 requirements.txt    # minimal dependencies for this package
 ```
 
-The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.2$), the **EVM graph-extraction pipeline**, the **evaluation scripts**, and the reproducibility artefacts (McNemar / Holm–Bonferroni significance tests, seed control) belong to the full experimental pipeline, which is **not yet publicly released**: it is available to editors and reviewers upon request and will be released alongside the datasets and pre-trained weights upon acceptance.
+The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.2$), the **EVM graph-extraction pipeline**, the **evaluation scripts**, and the reproducibility artefacts (per-instance McNemar tests, bootstrap confidence intervals for macro-F1, Holm–Bonferroni correction, seed control) belong to the full experimental pipeline, which is **not yet publicly released**: it is available to editors and reviewers upon request and will be released alongside the datasets and pre-trained weights upon acceptance.
 
 ---
 
@@ -96,7 +96,7 @@ The **GRPO training loop** (group size $N=8$, PPO-style clipping $\varepsilon=0.
 - pytest (optional, for running the test suite via pytest)
 
 **Full training / evaluation pipeline** (released upon acceptance): additionally
-transformers 4.40+, statsmodels 0.14 (McNemar / Holm–Bonferroni tests),
+transformers 4.40+, statsmodels 0.14 (McNemar test, Holm–Bonferroni correction), scipy and numpy (bootstrap confidence intervals),
 datasets, accelerate, and PyTorch with CUDA 12.1.
 
 **Hardware used in the paper**
@@ -297,11 +297,12 @@ If you use DG-VDT, the datasets, or the code in this repository, please cite the
 
 ```bibtex
 @article{sun2026dgvdt,
-  title   = {Graph-Conditioned Reinforcement Learning for Ethereum Smart-Contract Vulnerability Detection and Traceability},
+  title   = {DG-VDT: Dynamic Graph-Guided Reinforcement Learning for Low-Latency Vulnerability Detection and Attack Traceability in Ethereum Smart Contracts},
   author  = {Sun, Shiman and Jiang, Wenbao},
-  journal = {PeerJ Computer Science},
+  journal = {Applied Sciences},
+  publisher = {MDPI},
   year    = {2026},
-  note    = {Submitted}
+  note    = {Under review}
 }
 ```
 
@@ -309,7 +310,7 @@ Please also cite the Zenodo archive of this code repository:
 
 ```bibtex
 @dataset{sun2026dgvdt_zenodo,
-  title     = {DG-VDT: Reference implementation of the reward engine for graph-conditioned RL vulnerability detection},
+  title     = {DG-VDT: Reference implementation of the reward engine for dynamic graph-guided RL vulnerability detection and attack traceability},
   author    = {Sun, Shiman and Jiang, Wenbao},
   year      = {2026},
   publisher = {Zenodo},
